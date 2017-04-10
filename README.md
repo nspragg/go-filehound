@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/nspragg/go-filehound.svg)](https://travis-ci.org/nspragg/go-filehound) [![Coverage Status](https://coveralls.io/repos/github/nspragg/go-filehound/badge.svg?branch=master)](https://coveralls.io/github/nspragg/go-filehound?branch=master)
 
-> Flexible and fluent interface for searching the file system
+> [WIP] Flexible and fluent interface for searching the file system
 
 ## Installation
 
