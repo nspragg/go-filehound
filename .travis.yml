@@ -1,0 +1,19 @@
+language: go
+# - http://docs.travis-ci.com/user/workers/container-based-infrastructure/
+# - http://docs.travis-ci.com/user/workers/standard-infrastructure/
+sudo: false
+go:
+  - 1.7.x
+  - 1.8.x
+  - master
+matrix:
+  allow_failures:
+    - go: master
+  fast_finish: true
+install:
+  - 
+script:
+  - go get -t -v ./...
+  - go tool vet .
+  - diff -u <(echo -n) <(gofmt -d -s .)
+  - go test -v -race ./...
