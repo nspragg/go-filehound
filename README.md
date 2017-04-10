@@ -47,6 +47,8 @@ go test github.com/nspragg/go-filehound/filehound
 To generate a test coverage report:
 
 ```
+go test -coverprofile=coverage.out github.com/nspragg/go-filehound/filehound
+go tool cover -html=coverage.out
 ```
 ## Contributing
 
