@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"testing"
 
 	"github.com/nspragg/go-filehound/filehound"
@@ -123,5 +124,37 @@ func TestDoesNotRecursiveWhenDepthIsZero(t *testing.T) {
 		Find()
 
 	expected := qualifyNames("./fixtures/deeplyNested/c.json", "./fixtures/deeplyNested/d.json")
+	assertFiles(t, actual, expected)
+}
+
+func TestSearchWhenDepthIsOne(t *testing.T) {
+	actual := filehound.Create().
+		Path(deeplyNestedPath).
+		Depth(1).
+		Find()
+
+	expected := qualifyNames(
+		"./fixtures/deeplyNested/c.json",
+		"./fixtures/deeplyNested/d.json",
+		"./fixtures/deeplyNested/mydir/e.json")
+
+	assertFiles(t, actual, expected)
+}
+
+func TestSearchAtDepthN(t *testing.T) {
+	actual := filehound.Create().
+		Path(deeplyNestedPath).
+		Depth(3).
+		Find()
+	expected := qualifyNames(
+		"./fixtures/deeplyNested/c.json",
+		"./fixtures/deeplyNested/d.json",
+		"./fixtures/deeplyNested/mydir/e.json",
+		"./fixtures/deeplyNested/mydir/mydir2/f.json",
+		"./fixtures/deeplyNested/mydir/mydir2/mydir3/z.json",
+		"./fixtures/deeplyNested/mydir/mydir2/y.json")
+
+	sort.Strings(actual)
+
 	assertFiles(t, actual, expected)
 }

@@ -1,7 +1,6 @@
 package filehound
 
 import (
-	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -9,9 +8,14 @@ import (
 
 type filterFn func(path string, info os.FileInfo) bool
 
+func depth(path string) int {
+	parts := strings.Split(path, string(filepath.Separator))
+	return len(parts) - 1
+}
+
 // Filehound ...
 type Filehound struct {
-	path     string
+	root     string
 	filters  []filterFn
 	maxDepth int
 }
@@ -19,12 +23,12 @@ type Filehound struct {
 // Create returns an instance of Filehound
 func Create() *Filehound {
 	cwd, _ := os.Getwd()
-	return &Filehound{path: cwd, maxDepth: 100}
+	return &Filehound{root: cwd, maxDepth: 100}
 }
 
-// Path sets the search path. Defaults to the cwd
-func (f *Filehound) Path(path string) *Filehound {
-	f.path = path
+// Path sets the root of the search path. Defaults to the cwd
+func (f *Filehound) Path(root string) *Filehound {
+	f.root = root
 	return f
 }
 
@@ -70,16 +74,17 @@ func (f *Filehound) isMatch(path string, info os.FileInfo) bool {
 	return false
 }
 
+func (f *Filehound) atMaxDepth(path string) bool {
+	depth := depth(filepath.Dir(path)) - depth(f.root)
+	return depth > f.maxDepth
+}
+
 // Find executes the search
 func (f *Filehound) Find() []string {
-	depth := 0
 	files := make([]string, 0)
-	filepath.Walk(f.path, func(path string, info os.FileInfo, err error) error {
-		if info.IsDir() {
-			if depth > f.maxDepth {
-				return io.EOF
-			}
-			depth++
+	filepath.Walk(f.root, func(path string, info os.FileInfo, err error) error {
+		if f.atMaxDepth(path) {
+			return nil
 		}
 		if !info.IsDir() && f.isMatch(path, info) {
 			files = append(files, path)
