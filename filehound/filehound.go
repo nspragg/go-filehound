@@ -81,7 +81,7 @@ func (f *Filehound) atMaxDepth(path string) bool {
 
 // Find executes the search
 func (f *Filehound) Find() []string {
-	files := make([]string, 0)
+	var files []string
 	filepath.Walk(f.root, func(path string, info os.FileInfo, err error) error {
 		if f.atMaxDepth(path) {
 			return nil
