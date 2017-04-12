@@ -10,6 +10,8 @@ matrix:
   allow_failures:
     - go: master
   fast_finish: true
+before_install:
+  - go get github.com/mattn/goveralls
 install:
   - 
 script:
@@ -17,3 +19,4 @@ script:
   - go tool vet .
   - diff -u <(echo -n) <(gofmt -d -s .)
   - go test -v -race ./...
+  - $HOME/gopath/bin/goveralls -service=travis-ci
