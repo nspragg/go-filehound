@@ -60,6 +60,18 @@ func (f *Filehound) Size(size int64) *Filehound {
 	})
 }
 
+// IsEmpty ...
+func (f *Filehound) IsEmpty() *Filehound {
+	return f.Size(0)
+}
+
+// Discard ...
+func (f *Filehound) Discard(pattern string) *Filehound {
+	return f.Filter(func(path string, info os.FileInfo) bool {
+		return false
+	})
+}
+
 func (f *Filehound) isMatch(path string, info os.FileInfo) bool {
 	if len(f.filters) == 0 {
 		return true

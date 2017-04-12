@@ -146,6 +146,7 @@ func TestSearchAtDepthN(t *testing.T) {
 		Path(deeplyNestedPath).
 		Depth(3).
 		Find()
+
 	expected := qualifyNames(
 		"./fixtures/deeplyNested/c.json",
 		"./fixtures/deeplyNested/d.json",
@@ -155,6 +156,17 @@ func TestSearchAtDepthN(t *testing.T) {
 		"./fixtures/deeplyNested/mydir/mydir2/y.json")
 
 	sort.Strings(actual)
+
+	assertFiles(t, actual, expected)
+}
+
+func TestSearchByEmptyFile(t *testing.T) {
+	actual := filehound.Create().
+		Path(justFilesPath).
+		IsEmpty().
+		Find()
+
+	expected := qualifyNames("./fixtures/justFiles/a.json", "./fixtures/justFiles/dummy.txt")
 
 	assertFiles(t, actual, expected)
 }
