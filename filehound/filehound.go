@@ -3,6 +3,7 @@ package filehound
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -65,10 +66,11 @@ func (f *Filehound) IsEmpty() *Filehound {
 	return f.Size(0)
 }
 
-// Discard ...
-func (f *Filehound) Discard(pattern string) *Filehound {
+// Match ...
+func (f *Filehound) Match(pattern string) *Filehound {
 	return f.Filter(func(path string, info os.FileInfo) bool {
-		return false
+		isMatch, _ := regexp.MatchString(pattern, path)
+		return isMatch
 	})
 }
 
