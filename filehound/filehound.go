@@ -66,14 +66,6 @@ func (f *Filehound) IsEmpty() *Filehound {
 	return f.Size(0)
 }
 
-// Match ...
-func (f *Filehound) Match(pattern string) *Filehound {
-	return f.Filter(func(path string, info os.FileInfo) bool {
-		isMatch, _ := regexp.MatchString(pattern, path)
-		return isMatch
-	})
-}
-
 func (f *Filehound) isMatch(path string, info os.FileInfo) bool {
 	if len(f.filters) == 0 {
 		return true
