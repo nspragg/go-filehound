@@ -171,14 +171,14 @@ func TestSearchByEmptyFile(t *testing.T) {
 	assertFiles(t, actual, expected)
 }
 
-// Matching by regular expressions
-func TestSearchByMatchingOnRegex(t *testing.T) {
-	actual := filehound.Create().
-		Path(justFilesPath).
-		Match("a|b\\.\\w{3}").
-		Find()
+// // Matching by regular expressions
+// func TestSearchByMatchingOnRegex(t *testing.T) {
+// 	actual := filehound.Create().
+// 		Path(justFilesPath).
+// 		Match("a|b\\.\\w{3}").
+// 		Find()
 
-	expected := qualifyNames("./fixtures/justFiles/a.json", "./fixtures/justFiles/b.txt")
+// 	expected := qualifyNames("./fixtures/justFiles/a.json", "./fixtures/justFiles/b.txt")
 
-	assertFiles(t, actual, expected)
-}
+// 	assertFiles(t, actual, expected)
+// }

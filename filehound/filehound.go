@@ -3,7 +3,7 @@ package filehound
 import (
 	"os"
 	"path/filepath"
-	"regexp"
+	// "regexp"
 	"strings"
 )
 
