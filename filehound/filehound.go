@@ -3,7 +3,7 @@ package filehound
 import (
 	"os"
 	"path/filepath"
-	"regexp"
+	// "regexp"
 	"strings"
 )
 
@@ -14,6 +14,8 @@ func depth(path string) int {
 	return len(parts) - 1
 }
 
+type Option func(*Filehound)
+
 // Filehound ...
 type Filehound struct {
 	root     string
@@ -21,16 +23,17 @@ type Filehound struct {
 	maxDepth int
 }
 
+// Query ....
+func (f *Filehound) Query(opts ...Option) {
+	for _, opt := range opts {
+		opt(f)
+	}
+}
+
 // Create returns an instance of Filehound
 func Create() *Filehound {
 	cwd, _ := os.Getwd()
 	return &Filehound{root: cwd, maxDepth: 100}
-}
-
-// Path sets the root of the search path. Defaults to the cwd
-func (f *Filehound) Path(root string) *Filehound {
-	f.root = root
-	return f
 }
 
 // Ext filters by file extension
@@ -54,16 +57,25 @@ func (f *Filehound) Depth(depth int) *Filehound {
 	return f
 }
 
+// // IsEmpty ...
+// func (f *Filehound) IsEmpty() *Filehound {
+// 	return f.Size(0)
+// }
+
 // Size filters files by size
-func (f *Filehound) Size(size int64) *Filehound {
-	return f.Filter(func(path string, info os.FileInfo) bool {
-		return info.Size() == size
-	})
+func Size(size int64) Option {
+	return func(f *Filehound) {
+		f.Filter(func(path string, info os.FileInfo) bool {
+			return info.Size() == size
+		})
+	}
 }
 
-// IsEmpty ...
-func (f *Filehound) IsEmpty() *Filehound {
-	return f.Size(0)
+// Path sets the root of the search path. Defaults to the cwd
+func Path(root string) Option {
+	return func(f *Filehound) {
+		f.root = root
+	}
 }
 
 func (f *Filehound) isMatch(path string, info os.FileInfo) bool {
