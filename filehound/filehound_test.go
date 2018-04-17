@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"testing"
 
 	"github.com/nspragg/go-filehound/filehound"
@@ -34,6 +35,14 @@ var mixedFiles = qualifyNames(
 )
 var mixedPath = qualifyName("./fixtures/mixed")
 
+var Ext = filehound.Ext
+var Path = filehound.Path
+var Size = filehound.Size
+var Glob = filehound.Glob
+var Depth = filehound.Depth
+var IsEmpty = filehound.IsEmpty
+var Match = filehound.Match
+
 func qualifyName(name string) string {
 	cwd, _ := os.Getwd()
 	return filepath.Join(cwd, name)
@@ -55,128 +64,138 @@ func assertFiles(t *testing.T, actual, expected []string) {
 }
 
 func TestAllFilesInDirectory(t *testing.T) {
-	hound := filehound.Create()
-	hound.Query(filehound.Path(justFilesPath))
+	hound := filehound.New()
+	hound.Query(Path(justFilesPath))
 	actual := hound.Find()
 
 	assertFiles(t, actual, justFiles)
 }
 
 func TestRecursiveSearch(t *testing.T) {
-	hound := filehound.Create()
-	hound.Query(filehound.Path(nestedFilesPath))
+	hound := filehound.New()
+	hound.Query(Path(nestedFilesPath))
 	actual := hound.Find()
 
 	assertFiles(t, actual, nestedFiles)
 }
 
 func TestSearchByExtension(t *testing.T) {
-	hound := filehound.Create()
-	hound.Query(filehound.Path(justFilesPath))
-	hound.Query(filehound.Ext(".txt"))
+	hound := filehound.New()
+	hound.Query(Path(justFilesPath))
+	hound.Query(Ext(".txt"))
 	actual := hound.Find()
 
 	assertFiles(t, actual, textFiles)
 }
 
-// func TestSearchByExtensionExcludingPeriod(t *testing.T) {
-// 	actual := filehound.Create().
-// 		Path(justFilesPath).
-// 		Ext("txt").
-// 		Find()
+func TestSearchByExtensionExcludingPeriod(t *testing.T) {
+	hound := filehound.New()
+	hound.Query(Path(justFilesPath))
+	hound.Query(Ext("txt"))
+	actual := hound.Find()
 
-// 	assertFiles(t, actual, textFiles)
-// }
+	assertFiles(t, actual, textFiles)
+}
 
-// func TestSearchByMultipleExtensions(t *testing.T) {
-// 	actual := filehound.Create().
-// 		Path(justFilesPath).
-// 		Ext("txt", "json").
-// 		Find()
+func TestQueryVarArgs(t *testing.T) {
+	hound := filehound.New()
+	hound.Query(
+		Path(justFilesPath),
+		Ext("txt"))
 
-// 	assertFiles(t, actual, justFiles)
-// }
+	actual := hound.Find()
 
-// func TestSearchByFileSize(t *testing.T) {
-// 	f := filehound.Create().Path(justFilesPath)
-// 	f.Query(filehound.Size(20))
-// 	actual := f.Find()
+	assertFiles(t, actual, textFiles)
+}
 
-// 	expected := qualifyNames("./fixtures/justFiles/b.json")
-// 	assertFiles(t, actual, expected)
-// }
+func TestSearchByMultipleExtensions(t *testing.T) {
+	hound := filehound.New()
+	hound.Query(Path(justFilesPath))
+	hound.Query(Ext("txt", "json"))
+	actual := hound.Find()
 
-// func TestSeatchByFileGlob(t *testing.T) {
-// 	actual := filehound.Create().
-// 		Path(mixedPath).
-// 		Glob("*.json").
-// 		Find()
+	assertFiles(t, actual, justFiles)
+}
 
-// 	assertFiles(t, actual, mixedFiles)
-// }
+func TestSearchByFileSize(t *testing.T) {
+	hound := filehound.New()
+	hound.Query(Path(justFilesPath))
+	hound.Query(Size(20))
+	actual := hound.Find()
 
-// func TestDoesNotRecursiveWhenDepthIsZero(t *testing.T) {
-// 	actual := filehound.Create().
-// 		Path(deeplyNestedPath).
-// 		Depth(0).
-// 		Find()
+	expected := qualifyNames("./fixtures/justFiles/b.json")
+	assertFiles(t, actual, expected)
+}
 
-// 	expected := qualifyNames("./fixtures/deeplyNested/c.json", "./fixtures/deeplyNested/d.json")
-// 	assertFiles(t, actual, expected)
-// }
+func TestSeatchByFileGlob(t *testing.T) {
+	hound := filehound.New()
+	hound.Query(Path(mixedPath))
+	hound.Query(Glob("*.json"))
+	actual := hound.Find()
 
-// func TestSearchWhenDepthIsOne(t *testing.T) {
-// 	actual := filehound.Create().
-// 		Path(deeplyNestedPath).
-// 		Depth(1).
-// 		Find()
+	assertFiles(t, actual, mixedFiles)
+}
 
-// 	expected := qualifyNames(
-// 		"./fixtures/deeplyNested/c.json",
-// 		"./fixtures/deeplyNested/d.json",
-// 		"./fixtures/deeplyNested/mydir/e.json")
+func TestDoesNotRecursiveWhenDepthIsZero(t *testing.T) {
+	hound := filehound.New()
+	hound.Query(Path(deeplyNestedPath))
+	hound.Query(Depth(0))
+	actual := hound.Find()
 
-// 	assertFiles(t, actual, expected)
-// }
+	expected := qualifyNames("./fixtures/deeplyNested/c.json", "./fixtures/deeplyNested/d.json")
+	assertFiles(t, actual, expected)
+}
 
-// func TestSearchAtDepthN(t *testing.T) {
-// 	actual := filehound.Create().
-// 		Path(deeplyNestedPath).
-// 		Depth(3).
-// 		Find()
+func TestSearchWhenDepthIsOne(t *testing.T) {
+	hound := filehound.New()
+	hound.Query(Path(deeplyNestedPath))
+	hound.Query(Depth(1))
+	actual := hound.Find()
 
-// 	expected := qualifyNames(
-// 		"./fixtures/deeplyNested/c.json",
-// 		"./fixtures/deeplyNested/d.json",
-// 		"./fixtures/deeplyNested/mydir/e.json",
-// 		"./fixtures/deeplyNested/mydir/mydir2/f.json",
-// 		"./fixtures/deeplyNested/mydir/mydir2/mydir3/z.json",
-// 		"./fixtures/deeplyNested/mydir/mydir2/y.json")
+	expected := qualifyNames(
+		"./fixtures/deeplyNested/c.json",
+		"./fixtures/deeplyNested/d.json",
+		"./fixtures/deeplyNested/mydir/e.json")
 
-// 	sort.Strings(actual)
+	assertFiles(t, actual, expected)
+}
 
-// 	assertFiles(t, actual, expected)
-// }
+func TestSearchAtDepthN(t *testing.T) {
+	hound := filehound.New()
+	hound.Query(Path(deeplyNestedPath))
+	hound.Query(Depth(3))
+	actual := hound.Find()
 
-// func TestSearchByEmptyFile(t *testing.T) {
-// 	actual := filehound.Create().
-// 		Path(justFilesPath).
-// 		IsEmpty().
-// 		Find()
+	expected := qualifyNames(
+		"./fixtures/deeplyNested/c.json",
+		"./fixtures/deeplyNested/d.json",
+		"./fixtures/deeplyNested/mydir/e.json",
+		"./fixtures/deeplyNested/mydir/mydir2/f.json",
+		"./fixtures/deeplyNested/mydir/mydir2/mydir3/z.json",
+		"./fixtures/deeplyNested/mydir/mydir2/y.json")
 
-// 	expected := qualifyNames("./fixtures/justFiles/a.json", "./fixtures/justFiles/dummy.txt")
+	sort.Strings(actual)
 
-// 	assertFiles(t, actual, expected)
-// }
+	assertFiles(t, actual, expected)
+}
 
-// Matching by regular expressions
-// func TestSearchByMatchingOnRegex(t *testing.T) {
-// 	actual := filehound.Create().
-// 		Path(justFilesPath).
-// 		Match("a|b\\.\\w{3}").
-// 		Find()
+func TestSearchByEmptyFile(t *testing.T) {
+	hound := filehound.New()
+	hound.Query(Path(justFilesPath))
+	hound.Query(IsEmpty())
+	actual := hound.Find()
 
-// 	expected := qualifyNames("./fixtures/justFiles/a.json", "./fixtures/justFiles/b.txt")
+	expected := qualifyNames("./fixtures/justFiles/a.json", "./fixtures/justFiles/dummy.txt")
 
-// 	assertFiles(t, actual, expected)
-// }
+	assertFiles(t, actual, expected)
+}
+
+func TestSearchByMatchingOnRegex(t *testing.T) {
+	hound := filehound.New()
+	hound.Query(Path(justFilesPath))
+	hound.Query(Match("(a|b).json"))
+	actual := hound.Find()
+	expected := qualifyNames("./fixtures/justFiles/a.json", "./fixtures/justFiles/b.json")
+
+	assertFiles(t, actual, expected)
+}
