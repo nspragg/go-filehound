@@ -21,10 +21,10 @@ The example below prints all of the files in a directory that have the `.json` f
 ```go
 import filehound
 
-files := filehound.Create().
-  Paths("/tmp").
-  Ext("json").
-  Find()
+fh := filehound.New()
+  fh.Query(Paths("/tmp"))
+  fh.Query(Ext("json"))
+  files := fh.Find()
 
 fmt.Println(files)
 ```
