@@ -14,6 +14,9 @@ func depth(path string) int {
 	return len(parts) - 1
 }
 
+// Option ...
+type Option func(*Filehound)
+
 // Filehound ...
 type Filehound struct {
 	root     string
@@ -21,49 +24,81 @@ type Filehound struct {
 	maxDepth int
 }
 
-// Create returns an instance of Filehound
-func Create() *Filehound {
+// Query ....
+func (f *Filehound) Query(opts ...Option) {
+	for _, opt := range opts {
+		opt(f)
+	}
+}
+
+// New returns an instance of Filehound
+func New() *Filehound {
 	cwd, _ := os.Getwd()
 	return &Filehound{root: cwd, maxDepth: 100}
 }
 
-// Path sets the root of the search path. Defaults to the cwd
-func (f *Filehound) Path(root string) *Filehound {
-	f.root = root
-	return f
-}
-
-// Ext filters by file extension
-func (f *Filehound) Ext(exts ...string) *Filehound {
-	return f.Filter(func(path string, info os.FileInfo) bool {
-		for _, ext := range exts {
-			if strings.HasPrefix(ext, ".") {
-				ext = ext[1:]
-			}
-			if filepath.Ext(path)[1:] == ext {
-				return true
-			}
-		}
-		return false
-	})
-}
-
 // Depth sets the max recursion depth
-func (f *Filehound) Depth(depth int) *Filehound {
-	f.maxDepth = depth
-	return f
+func Depth(depth int) Option {
+	return func(f *Filehound) {
+		f.maxDepth = depth
+	}
 }
 
 // Size filters files by size
-func (f *Filehound) Size(size int64) *Filehound {
-	return f.Filter(func(path string, info os.FileInfo) bool {
-		return info.Size() == size
-	})
+func Size(size int64) Option {
+	return func(f *Filehound) {
+		f.Filter(func(path string, info os.FileInfo) bool {
+			return info.Size() == size
+		})
+	}
 }
 
 // IsEmpty ...
-func (f *Filehound) IsEmpty() *Filehound {
-	return f.Size(0)
+func IsEmpty() Option {
+	return Size(0)
+}
+
+// Path sets the root of the search path. Defaults to the cwd
+func Path(root string) Option {
+	return func(f *Filehound) {
+		f.root = root
+	}
+}
+
+// Ext filters by file extension
+func Ext(exts ...string) Option {
+	return func(f *Filehound) {
+		f.Filter(func(path string, info os.FileInfo) bool {
+			for _, ext := range exts {
+				if strings.HasPrefix(ext, ".") {
+					ext = ext[1:]
+				}
+				if filepath.Ext(path)[1:] == ext {
+					return true
+				}
+			}
+			return false
+		})
+	}
+}
+
+// Match filters by file regexp
+func Match(pattern string) Option {
+	return func(f *Filehound) {
+		f.Filter(func(path string, info os.FileInfo) bool {
+			return regexp.MustCompile(pattern).MatchString(path)
+		})
+	}
+}
+
+// Glob ...
+func Glob(pattern string) Option {
+	return func(f *Filehound) {
+		f.Filter(func(path string, info os.FileInfo) bool {
+			isMatch, _ := filepath.Match(pattern, filepath.Base(path))
+			return isMatch
+		})
+	}
 }
 
 func (f *Filehound) isMatch(path string, info os.FileInfo) bool {
@@ -99,14 +134,6 @@ func (f *Filehound) Find() []string {
 	})
 
 	return files
-}
-
-// Glob sets ...
-func (f *Filehound) Glob(pattern string) *Filehound {
-	return f.Filter(func(path string, info os.FileInfo) bool {
-		isMatch, _ := filepath.Match(pattern, filepath.Base(path))
-		return isMatch
-	})
 }
 
 // Filter ...
