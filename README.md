@@ -33,7 +33,7 @@ fmt.Println(files)
 ```
 
 ## Documentation
-For more examples and API details, see [API documentation](https://nspragg.github.io/go-filehound/)
+For more examples and API details, see [API documentation](https://godoc.org/github.com/nspragg/go-filehound/filehound)
 
 ## Build
 
