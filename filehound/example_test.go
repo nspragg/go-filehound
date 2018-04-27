@@ -15,6 +15,7 @@ func ExampleFind() {
 
 func ExampleSize() {
 	fh := filehound.New()
+	fh.Query(filehound.Size(1024))
 	files := fh.Find()
 
 	fmt.Println(files)
