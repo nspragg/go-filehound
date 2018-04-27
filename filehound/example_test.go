@@ -6,8 +6,9 @@ import (
 	"github.com/nspragg/go-filehound/filehound"
 )
 
-func ExampleFind() {
+func ExampleExt() {
 	fh := filehound.New()
+	fh.Query(filehound.Ext(".txt"))
 	files := fh.Find()
 
 	fmt.Println(files)
