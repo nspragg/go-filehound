@@ -12,8 +12,7 @@ type filterFn func(path string, info os.FileInfo) bool
 // Option is a filehound filter option
 type Option func(*Filehound)
 
-// Filehound will search for files apply zero or more file
-// filters. 
+// Filehound will search for files apply zero or more file filters.
 type Filehound struct {
 	root     string
 	filters  []filterFn
