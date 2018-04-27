@@ -190,12 +190,12 @@ func TestSearchByEmptyFile(t *testing.T) {
 	assertFiles(t, actual, expected)
 }
 
-// func TestSearchByMatchingOnRegex(t *testing.T) {
-// 	hound := filehound.New()
-// 	hound.Query(Path(justFilesPath))
-// 	hound.Query(Match("(a|b).json"))
-// 	actual := hound.Find()
-// 	expected := qualifyNames("./fixtures/justFiles/a.json", "./fixtures/justFiles/b.json")
+func TestSearchByMatchingOnRegex(t *testing.T) {
+	hound := filehound.New()
+	hound.Query(Path(justFilesPath))
+	hound.Query(Match("(a|b).json"))
+	actual := hound.Find()
+	expected := qualifyNames("./fixtures/justFiles/a.json", "./fixtures/justFiles/b.json")
 
-// 	assertFiles(t, actual, expected)
-// }
+	assertFiles(t, actual, expected)
+}
