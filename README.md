@@ -1,6 +1,6 @@
 # Filehound
 
-[![GoDoc](https://godoc.org/github.com/nspragg/go-filehound?status.svg)](https://godoc.org/github.com/nspragg/go-filehound) 
+[![GoDoc](https://godoc.org/github.com/nspragg/go-filehound/filehound?status.svg)](https://godoc.org/github.com/nspragg/go-filehound) 
 [![Build Status](https://travis-ci.org/nspragg/go-filehound.svg)](https://travis-ci.org/nspragg/go-filehound) 
 [![Coverage Status](https://coveralls.io/repos/github/nspragg/go-filehound/badge.svg?branch=master)](https://coveralls.io/github/nspragg/go-filehound?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/nspragg/go-filehound)](https://goreportcard.com/report/github.com/nspragg/go-filehound)

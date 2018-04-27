@@ -9,22 +9,18 @@ import (
 
 type filterFn func(path string, info os.FileInfo) bool
 
-func depth(path string) int {
-	parts := strings.Split(path, string(filepath.Separator))
-	return len(parts) - 1
-}
-
-// Option ...
+// Option is a filehound filter option
 type Option func(*Filehound)
 
-// Filehound ...
+// Filehound will search for files apply zero or more file
+// filters. 
 type Filehound struct {
 	root     string
 	filters  []filterFn
 	maxDepth int
 }
 
-// Query ....
+// Query adds a search Option
 func (f *Filehound) Query(opts ...Option) {
 	for _, opt := range opts {
 		opt(f)
@@ -37,7 +33,7 @@ func New() *Filehound {
 	return &Filehound{root: cwd, maxDepth: 100}
 }
 
-// Depth sets the max recursion depth
+// Depth sets the max recursion depth for the search
 func Depth(depth int) Option {
 	return func(f *Filehound) {
 		f.maxDepth = depth
@@ -53,7 +49,7 @@ func Size(size int64) Option {
 	}
 }
 
-// IsEmpty ...
+// IsEmpty filters files that are zero length (empty files)
 func IsEmpty() Option {
 	return Size(0)
 }
@@ -65,7 +61,7 @@ func Path(root string) Option {
 	}
 }
 
-// Ext filters by file extension
+// Ext filters by one or more file extentions
 func Ext(exts ...string) Option {
 	return func(f *Filehound) {
 		f.Filter(func(path string, info os.FileInfo) bool {
@@ -82,7 +78,7 @@ func Ext(exts ...string) Option {
 	}
 }
 
-// Match filters by file regexp
+// Match filters by file using a given regexp
 func Match(pattern string) Option {
 	return func(f *Filehound) {
 		f.Filter(func(path string, info os.FileInfo) bool {
@@ -91,7 +87,7 @@ func Match(pattern string) Option {
 	}
 }
 
-// Glob ...
+// Glob matches files using a file glob
 func Glob(pattern string) Option {
 	return func(f *Filehound) {
 		f.Filter(func(path string, info os.FileInfo) bool {
@@ -99,25 +95,6 @@ func Glob(pattern string) Option {
 			return isMatch
 		})
 	}
-}
-
-func (f *Filehound) isMatch(path string, info os.FileInfo) bool {
-	if len(f.filters) == 0 {
-		return true
-	}
-
-	for _, fn := range f.filters {
-		if fn(path, info) {
-			return true
-		}
-	}
-
-	return false
-}
-
-func (f *Filehound) atMaxDepth(path string) bool {
-	depth := depth(filepath.Dir(path)) - depth(f.root)
-	return depth > f.maxDepth
 }
 
 // Find executes the search
@@ -136,8 +113,31 @@ func (f *Filehound) Find() []string {
 	return files
 }
 
-// Filter ...
-func (f *Filehound) Filter(fn filterFn) *Filehound {
+// Filter adds fn as a search filter
+func (f *Filehound) Filter(fn filterFn) {
 	f.filters = append(f.filters, fn)
-	return f
+}
+
+func (f *Filehound) isMatch(path string, info os.FileInfo) bool {
+	if len(f.filters) == 0 {
+		return true
+	}
+
+	for _, fn := range f.filters {
+		if fn(path, info) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func depth(path string) int {
+	parts := strings.Split(path, string(filepath.Separator))
+	return len(parts) - 1
+}
+
+func (f *Filehound) atMaxDepth(path string) bool {
+	depth := depth(filepath.Dir(path)) - depth(f.root)
+	return depth > f.maxDepth
 }
