@@ -60,7 +60,7 @@ func Path(root string) Option {
 	}
 }
 
-// Ext filters by one or more file extentions
+// Ext filters by one or more file extensions
 func Ext(exts ...string) Option {
 	return func(f *Filehound) {
 		f.Filter(func(path string, info os.FileInfo) bool {
