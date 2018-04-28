@@ -10,7 +10,7 @@
 ## Installation
 
 ```
-go get https://github.com/nspragg/go-filehound/filehound
+go get github.com/nspragg/go-filehound/filehound
 ```
 
 <!-- ## Demo
