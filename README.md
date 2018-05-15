@@ -5,7 +5,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/nspragg/go-filehound/badge.svg?branch=master)](https://coveralls.io/github/nspragg/go-filehound?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/nspragg/go-filehound)](https://goreportcard.com/report/github.com/nspragg/go-filehound)
 
-> Flexible and fluent interface for searching the file system
+> Flexible and fluent interface for searching the file system. Implementation of [FileHound](https://github.com/nspragg/filehound) in Go. 
 
 ## Installation
 
